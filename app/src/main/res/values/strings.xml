@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">producer_new</string>
+    <string name="refresh">刷新</string>
+    <string name="back">返回</string>
+    <string name="menu">菜单</string>
+    <string name="edit">编辑菜品</string>
+    <string name="add_dish">新增</string>
+    <string name="dish_name">名称</string>
+    <string name="dish_price">价格</string>
+</resources>

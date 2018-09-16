@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent">
+
+    <Button
+        android:id="@+id/title_return"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:layout_margin="8dp"
+        android:onClick="refresh"
+        android:text="@string/refresh" />
+    <TextView
+        android:gravity="center"
+        android:layout_gravity="top"
+        android:layout_weight="1"
+        android:id="@+id/title_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:layout_margin="8dp"
+        android:onClick="editDish"
+        android:text="@string/edit" />
+</LinearLayout>
