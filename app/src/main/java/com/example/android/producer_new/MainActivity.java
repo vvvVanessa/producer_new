@@ -11,35 +11,42 @@ import android.view.View;
 import android.widget.ListView;
 
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements BookAdapter.Callback {
-
+    private final static String HOST = "http://118.25.173.49:8080/";
+    private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private List<Book> books;
     private ListView listView;
     private BookAdapter bookAdapter;
+    RequestQueue queue;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        queue = Volley.newRequestQueue(MainActivity.this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        final Activity activity = this;
-        final BookAdapter.Callback callback = this;
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    TimeUnit.SECONDS.sleep(5);
-                    books = getBooksFromRemote();
-                    bookAdapter = new BookAdapter(activity, R.layout.book_view, books, callback);
-                    listView = findViewById(R.id.book_list);
-                    listView.setAdapter(bookAdapter);;
-                } catch (InterruptedException e) {
-                    Log.e("main create" , e.toString());
-                }
-            }
-        });
     }
 
     @Override
@@ -60,39 +67,60 @@ public class MainActivity extends AppCompatActivity implements BookAdapter.Callb
     }
 
     private void delBooks() {
-        for(Book book:books) {
-            if (book.getAcceptBtnStatus() == 0) {
-                delBookFromRemote(book);
+        if (books != null) {
+            for(Book book:books) {
+                if (book.getAcceptBtnStatus() == 0) {
+                    delBookFromRemote(book);
+                }
             }
+            books.clear();
         }
     }
-    private List<Book> getBooksFromRemote() {
-        List<Book> retlist = new ArrayList<Book>() {{
-            for(int i = 0; i < 20; i++) {
-            add(Book.builder().user(User.builder()
-                    .username("yy")
-                    .password("123")
-                    .phone("4008823823").build())
-                    .dishes(new ArrayList<Dish>() {{
-                        add(Dish.builder().name("aaa")
-                                .price(10).build());
-                        add(Dish.builder().name("bbb")
-                                .price(15).build());
-                        add(Dish.builder().name("ccc")
-                                .price(20).build());
-                    }})
-                    .acceptBtnStatus(1).build());
+    private void getBooksFromRemote() {
+        final Activity activity = this;
+        final BookAdapter.Callback callback = this;
+        String url = HOST + "/producer/book";
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
+                Request.Method.GET, url, null,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(final JSONArray response) {
+                            Gson gson = new Gson();
+                            Type listType = new TypeToken<List<Book>>() {}.getType();
+                            books = gson.fromJson(response.toString(), listType);
+                            Log.d("books", Arrays.toString(books.toArray()));
+                            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    bookAdapter = new BookAdapter(activity, R.layout.book_view, books, callback);
+                                    listView = findViewById(R.id.book_list);
+                                    listView.setAdapter(bookAdapter);
+                                    bookAdapter.notifyDataSetChanged();
+                                }
+                            });
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.i("{}", error.toString());
+                }}) {
+            @Override
+            public String getBodyContentType() {
+                return "application/json";
             }
-        }};
-        return retlist;
+        };
+        queue.add(jsonArrayRequest);
     }
     public void refresh(View view) {
         delBooks();
-        books.clear();
-        books.addAll(getBooksFromRemote());
-        bookAdapter.notifyDataSetChanged();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                getBooksFromRemote();
+            }
+        }).start();
     }
-
     public void editDish(View view) {
         Intent intent = new Intent(this, EditDishActivity.class);
         startActivity(intent);

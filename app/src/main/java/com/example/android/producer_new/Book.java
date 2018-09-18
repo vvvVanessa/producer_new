@@ -5,6 +5,7 @@ import android.widget.ArrayAdapter;
 import java.util.List;
 
 import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,8 +13,7 @@ import lombok.Setter;
  * @author yuan
  */
 @Builder
-@Getter
-@Setter
+@Data
 public class Book {
     private User user;
     private List<Dish> dishes;
