@@ -62,9 +62,9 @@ public class EditDishActivity extends AppCompatActivity implements DishAdapter.C
                 return;
             }
         }
-        Double dishPrice;
+        int dishPrice;
         try {
-            dishPrice = Double.parseDouble(dishPriceString);
+            dishPrice = Integer.valueOf(dishPriceString);
         } catch(NumberFormatException e) {
             showDialog("请输入正确的菜品价格");
             return;
@@ -79,9 +79,9 @@ public class EditDishActivity extends AppCompatActivity implements DishAdapter.C
     }
     private ArrayList<Dish> getDishesFromRemote() {
         return new ArrayList<Dish> () {{
-            add(Dish.builder().name("aaa").price((double)10).build());
-            add(Dish.builder().name("bbb").price((double)15).build());
-            add(Dish.builder().name("ccc").price((double)20).build());
+            add(Dish.builder().name("aaa").price(10).build());
+            add(Dish.builder().name("bbb").price(15).build());
+            add(Dish.builder().name("ccc").price(20).build());
         }};
     }
     private void delDishFromRemote(final Dish dish) {

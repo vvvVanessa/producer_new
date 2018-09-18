@@ -1,14 +1,19 @@
 package com.example.android.producer_new;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements BookAdapter.Callback {
 
@@ -19,10 +24,22 @@ public class MainActivity extends AppCompatActivity implements BookAdapter.Callb
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        books = getBooksFromRemote();
-        bookAdapter = new BookAdapter(this, R.layout.book_view, books, this);
-        listView = findViewById(R.id.book_list);
-        listView.setAdapter(bookAdapter);
+        final Activity activity = this;
+        final BookAdapter.Callback callback = this;
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    TimeUnit.SECONDS.sleep(5);
+                    books = getBooksFromRemote();
+                    bookAdapter = new BookAdapter(activity, R.layout.book_view, books, callback);
+                    listView = findViewById(R.id.book_list);
+                    listView.setAdapter(bookAdapter);;
+                } catch (InterruptedException e) {
+                    Log.e("main create" , e.toString());
+                }
+            }
+        });
     }
 
     @Override
@@ -58,11 +75,11 @@ public class MainActivity extends AppCompatActivity implements BookAdapter.Callb
                     .phone("4008823823").build())
                     .dishes(new ArrayList<Dish>() {{
                         add(Dish.builder().name("aaa")
-                                .price((double)10).build());
+                                .price(10).build());
                         add(Dish.builder().name("bbb")
-                                .price((double)15).build());
+                                .price(15).build());
                         add(Dish.builder().name("ccc")
-                                .price((double)20).build());
+                                .price(20).build());
                     }})
                     .acceptBtnStatus(1).build());
             }

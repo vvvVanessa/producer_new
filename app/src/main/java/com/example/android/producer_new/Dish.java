@@ -1,20 +1,21 @@
 package com.example.android.producer_new;
 
 import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
  * @author yuan
  */
+
+@Data
 @Builder
-@Setter
-@Getter
 public class Dish {
     private String name;
-    private Double price;
+    private int price;
     @Override
     public String toString() {
-        return "名称：" + getName() + "\n价格：" + getPrice().toString();
+        return "名称：" + name + "\n价格：" + price;
     }
 }
