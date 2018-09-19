@@ -17,7 +17,7 @@ import lombok.Setter;
 public class Book {
     private User user;
     private List<Dish> dishes;
-    private int acceptBtnStatus;
+    private boolean ac;
 
     private String getDishString() {
         String rets = "";

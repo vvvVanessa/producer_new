@@ -31,8 +31,8 @@ public class BookAdapter extends ArrayAdapter<Book> {
         }
         Book book = getItem(position);
         viewHolder.bookMsg.setText(book.toString());
-        viewHolder.acceptBtn.setEnabled(book.getAcceptBtnStatus() == 1 ? true:false);
-        viewHolder.acceptBtn.setText(book.getAcceptBtnStatus() == 1 ? "接单" : "已接单");
+        viewHolder.acceptBtn.setEnabled(!book.isAc());
+        viewHolder.acceptBtn.setText(book.isAc() ? "已接单" : "未接单");
         viewHolder.acceptBtn.setTag(position);
         viewHolder.acceptBtn.setOnClickListener(new onButtonClickListener());
         return convertView;

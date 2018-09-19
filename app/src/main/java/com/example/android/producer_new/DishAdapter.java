@@ -20,10 +20,9 @@ public class DishAdapter extends ArrayAdapter<Dish> {
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder;
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.book_view, null);
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.dish_view, null);
             viewHolder = new ViewHolder();
-            viewHolder.dishMsg = convertView.findViewById(R.id.book_msg);
-            viewHolder.del= convertView.findViewById(R.id.accept_btn);
+            viewHolder.dishMsg = convertView.findViewById(R.id.dish_msg);
             convertView.setTag(viewHolder);
 
         } else {
@@ -31,9 +30,6 @@ public class DishAdapter extends ArrayAdapter<Dish> {
         }
         Dish dish = getItem(position);
         viewHolder.dishMsg.setText(dish.toString());
-        viewHolder.del.setText("删除");
-        viewHolder.del.setTag(position);
-        viewHolder.del.setOnClickListener(new onButtonClickListener());
         return convertView;
     }
 
@@ -50,6 +46,5 @@ public class DishAdapter extends ArrayAdapter<Dish> {
     }
     private static class ViewHolder {
         TextView dishMsg;
-        Button del;
     }
 }

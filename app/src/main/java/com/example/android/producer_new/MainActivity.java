@@ -28,15 +28,11 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements BookAdapter.Callback {
-    private final static String HOST = "http://118.25.173.49:8080/";
+    private final static String HOST = "http://118.25.173.49:8080";
     private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private List<Book> books;
     private ListView listView;
@@ -51,10 +47,9 @@ public class MainActivity extends AppCompatActivity implements BookAdapter.Callb
 
     @Override
     public void click(View view, int position, Book book) {
-        book.setAcceptBtnStatus(0);
+        book.setAc(true);
         int firstVisiblePosition = listView.getFirstVisiblePosition();
         int lastVisiblePosition = listView.getLastVisiblePosition();
-
         if(position >= firstVisiblePosition && position <= lastVisiblePosition) {
             view = listView.getChildAt(position - firstVisiblePosition);
             bookAdapter.getView(position, view, listView);
@@ -62,18 +57,47 @@ public class MainActivity extends AppCompatActivity implements BookAdapter.Callb
     }
 
     private void delBookFromRemote(final Book book) {
-        // 服务器端, 实际不删除
-        // 仅把状态更新为已接单
+        Log.d("call", "call delete 3");
+    String url = HOST + "/producer/book/delete";
+    JSONObject jsonObject = new JSONObject();
+        try {
+        jsonObject = new JSONObject(OBJECT_MAPPER.writeValueAsString(book));
+    } catch (JSONException e) {
+        e.printStackTrace();
+    } catch (IOException e) {
+        e.printStackTrace();
     }
+        Log.d("hello", jsonObject.toString());
+    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+            Request.Method.POST,
+            url,
+            jsonObject,
+            new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(final JSONObject response) {
+                }
+            }, new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Log.i("{}", error.toString());
+        }}){
+        @Override
+        public String getBodyContentType() {
+            return "application/json";
+        }
+    };
+        queue.add(jsonObjectRequest);
+}
 
     private void delBooks() {
         if (books != null) {
+            Log.d("call", "call delete");
             for(Book book:books) {
-                if (book.getAcceptBtnStatus() == 0) {
+                if (book.isAc()) {
+                    Log.d("call", "call delete 2");
                     delBookFromRemote(book);
                 }
             }
-            books.clear();
         }
     }
     private void getBooksFromRemote() {
@@ -92,7 +116,8 @@ public class MainActivity extends AppCompatActivity implements BookAdapter.Callb
                             new Handler(Looper.getMainLooper()).post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    bookAdapter = new BookAdapter(activity, R.layout.book_view, books, callback);
+                                    bookAdapter = new BookAdapter(
+                                            activity, R.layout.book_view, books, callback);
                                     listView = findViewById(R.id.book_list);
                                     listView.setAdapter(bookAdapter);
                                     bookAdapter.notifyDataSetChanged();
@@ -113,10 +138,10 @@ public class MainActivity extends AppCompatActivity implements BookAdapter.Callb
         queue.add(jsonArrayRequest);
     }
     public void refresh(View view) {
-        delBooks();
         new Thread(new Runnable() {
             @Override
             public void run() {
+                delBooks();
                 getBooksFromRemote();
             }
         }).start();
@@ -125,6 +150,4 @@ public class MainActivity extends AppCompatActivity implements BookAdapter.Callb
         Intent intent = new Intent(this, EditDishActivity.class);
         startActivity(intent);
     }
-
-
 }
